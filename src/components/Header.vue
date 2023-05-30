@@ -13,6 +13,9 @@ import { ref, reactive, onMounted, watch } from "vue";
 
 <style scoped lang="scss">
 .header{
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   margin: 0 auto;
   padding: 10px;

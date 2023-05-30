@@ -15,6 +15,7 @@ import { ref, reactive, onMounted, watch } from "vue";
 .layout{
   max-width: 500px;
   width: 100%;
+  padding: 50px 20px;
   margin: 0 auto;
 }
 </style>
