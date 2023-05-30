@@ -3,6 +3,8 @@
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "src/views/.vue.ts"],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
+    "ignoreDeprecations": "5.0",
+    "verbatimModuleSyntax": true,
     "composite": true,
     "baseUrl": ".",
     "paths": {

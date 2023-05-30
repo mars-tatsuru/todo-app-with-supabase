@@ -61,7 +61,7 @@
     "@storybook/vue3-vite": "7.0.0-beta.20",
     "@types/chart.js": "^2.9.37",
     "@types/jsdom": "^21.1.0",
-    "@types/node": "^18.14.2",
+    "@types/node": "^18.14.5",
     "@types/papaparse": "^5.3.7",
     "@vitejs/plugin-vue": "^4.0.0",
     "@vue/eslint-config-prettier": "^7.1.0",

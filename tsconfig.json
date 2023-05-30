@@ -19,5 +19,6 @@
     "strict": false,
     "strictPropertyInitialization": false,
     "strictNullChecks": false,
+    "lib": ["es5", "es6", "dom"]
   }
 }

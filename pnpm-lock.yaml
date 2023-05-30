@@ -139,7 +139,7 @@ devDependencies:
     specifier: ^21.1.0
     version: 21.1.0
   '@types/node':
-    specifier: ^18.14.2
+    specifier: ^18.14.5
     version: 18.14.5
   '@types/papaparse':
     specifier: ^5.3.7
