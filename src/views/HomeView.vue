@@ -5,12 +5,13 @@ import { getTodos, addTodo, deleteTodo, updateTodo }  from "../util/supabaseFunc
 type List = {
   id: number;
   title: string;
-  isDone: boolean;
+  isCompleted: boolean;
 };
 
 const todoList = ref<List[]>([]);
 const todoItemText = ref<string>("");
 const isDone = ref<boolean>(false);
+
 
 const getList = async () => {
   const todo = await getTodos();
@@ -25,6 +26,7 @@ const addList = async (title: string) => {
 
 const updateItem = async (id: number, isCompleted:boolean) => {
   await updateTodo(id,isCompleted);
+  getList();
 }
 
 const deleteItem = async (id: number) => {
@@ -42,11 +44,12 @@ onMounted(() => {
   <div class="todoListWrapper">
     <div class="todoListAddArea">
       <input
-      v-model="todoItemText"
+        v-model="todoItemText"
         type="text"
         placeholder="Add a new todo"
       />
       <button
+        :disabled="todoItemText === ''"
         @click="addList(todoItemText)"
       >
         Add
@@ -60,8 +63,11 @@ onMounted(() => {
         <input
           type="checkbox"
           @click="updateItem(todo.id, todo.isCompleted)"
+          :checked="todo.isCompleted"
         />
-        <span :class="{'done': isDone}">
+        <span
+          :class="{'done': todo.isCompleted}"
+        >
           {{todo.title}}
         </span>
         <div
@@ -108,6 +114,12 @@ onMounted(() => {
       color: #fff;
       font-size: 16px;
       cursor: pointer;
+
+      &[disabled]{
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
     }
 
   }
