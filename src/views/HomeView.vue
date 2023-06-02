@@ -10,12 +10,11 @@ type List = {
 
 const todoList = ref<List[]>([]);
 const todoItemText = ref<string>("");
-const isDone = ref<boolean>(false);
 
 
 const getList = async () => {
   const todo = await getTodos();
-  todoList.value = todo;
+  todoList.value = todo as List[];
 }
 
 const addList = async (title: string) => {
