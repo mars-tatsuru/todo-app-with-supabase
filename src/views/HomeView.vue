@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch, defineEmits } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import { getTodos, addTodo, deleteTodo, updateTodo }  from "../util/supabaseFunctions";
 
 type List = {
