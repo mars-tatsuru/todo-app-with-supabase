@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from "vue";
 import { getTodos, addTodo, deleteTodo, updateTodo }  from "../util/supabaseFunctions";
+import Pagination from "@/components/Pagination.vue";
 
 type List = {
   id: number;
@@ -82,7 +83,6 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-
 .todoListWrapper{
   max-width: 600px;
   width: 100%;
