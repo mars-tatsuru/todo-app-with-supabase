@@ -5,9 +5,12 @@ export const getTodos = async () => {
   return todos.data;
 }
 
-export const addTodo = async (todo: string) => {
+export const addTodo = async (todo: string, who: string) => {
   const { data, error } = await supabase.from('todo').insert([
-    { title: todo, isCompleted: false }
+    {
+      title: todo,
+      who: who,
+    }
   ]);
   return data;
 }

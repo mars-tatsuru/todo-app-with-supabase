@@ -7,31 +7,45 @@ type List = {
   id: number;
   title: string;
   isCompleted: boolean;
+  who: string;
 };
 
 const todoList = ref<List[]>([]);
 const todoItemText = ref<string>("");
+const todoItemWho = ref<string>("");
+const displayFlag = ref<boolean>(false);
+const selectData = ["tatsuru", "ayaka", "together"]
 
 
 const getList = async () => {
   const todo = await getTodos();
-  todoList.value = todo as List[];
+  const sortedList = todo?.sort((a, b) => a.id - b.id);
+  todoList.value = sortedList as List[];
+  console.log(todoList.value);
 }
 
-const addList = async (title: string) => {
-  await addTodo(title);
+const addList = async (title: string, who: string) => {
+  await addTodo(title, who);
   todoItemText.value = "";
+  todoItemWho.value = "";
+  displayFlag.value = !displayFlag.value;
   getList();
 }
 
-const updateItem = async (id: number, isCompleted:boolean) => {
-  await updateTodo(id,isCompleted);
-  getList();
-}
+// const updateItem = async (id: number, isCompleted:boolean) => {
+//   await updateTodo(id,isCompleted);
+//   getList();
+// }
 
 const deleteItem = async (id: number) => {
   await deleteTodo(id);
   getList();
+}
+
+const modalDisplay = () => {
+  displayFlag.value = !displayFlag.value;
+  todoItemText.value = "";
+  todoItemWho.value = "";
 }
 
 onMounted(() => {
@@ -42,43 +56,84 @@ onMounted(() => {
 
 <template>
   <div class="todoListWrapper">
-    <div class="todoListAddArea">
+    <h1>TODO LIST</h1>
+    <div
+      class="todoListAddArea"
+      :class="{'active': displayFlag}"
+    >
+    <h2>予定入力欄</h2>
+    <div class="typeTodo">
+      <p>やることを入力</p>
       <input
         v-model="todoItemText"
         type="text"
         placeholder="Add a new todo"
       />
-      <button
-        :disabled="todoItemText === ''"
-        @click="addList(todoItemText)"
-      >
-        Add
-      </button>
     </div>
-    <ul class="todoListArea">
-      <li
-        v-for="todo in todoList"
-        :key="todo.id"
+    <div class="selectData">
+      <div
+        class="deleteBtn"
+        @click="modalDisplay"
       >
+        <span></span>
+        <span></span>
+      </div>
+      <p>誰の予定？</p>
+      <label
+        v-for="data in selectData"
+        :key="data"
+        :for="data"
+        >
         <input
-          type="checkbox"
-          @click="updateItem(todo.id, todo.isCompleted)"
-          :checked="todo.isCompleted"
+          v-model="todoItemWho"
+          :id="data"
+          type="radio"
+          name="who"
+          :value="data"
         />
-        <span
-          :class="{'done': todo.isCompleted}"
+        {{ data }}
+      </label>
+    </div>
+    <button
+      :disabled="todoItemText === '' || todoItemWho === ''"
+      @click="addList(todoItemText,todoItemWho)"
+    >
+      予定を追加する
+    </button>
+    </div>
+    <div class="overflow">
+      <ul class="todoListArea">
+        <li
+          v-for="todo in todoList"
+          :key="todo.id"
+          :data="todo.who"
         >
-          {{todo.title}}
-        </span>
-        <div
-          class="deleteBtn"
-          @click="deleteItem(todo.id)"
-        >
-          <span></span>
-          <span></span>
-        </div>
-      </li>
-    </ul>
+          <div class="todoListAreaInner">
+            <p v-if="todo.who === 'tatsuru'">たつる</p>
+            <p v-else-if="todo.who === 'ayaka'">あやか</p>
+            <p v-if="todo.who === 'together'">ふたり</p>
+            <span
+              :class="{'done': todo.isCompleted}"
+            >
+              {{todo.title}}
+            </span>
+          </div>
+          <div
+            class="deleteBtn"
+            @click="deleteItem(todo.id)"
+          >
+            <span></span>
+            <span></span>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div
+      class="todoListAddStartBtn"
+      @click="modalDisplay"
+    >
+      <p>予定を追加する</p>
+    </div>
   </div>
 </template>
 
@@ -87,32 +142,148 @@ onMounted(() => {
   max-width: 600px;
   width: 100%;
   margin: 0 auto;
-  padding: 20px;
+  padding: 20px 0;
 
+  h1{
+    text-align: center;
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 30px;
+
+    @media screen and (max-width: 767px) {
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+
+  }
 
   .todoListAddArea{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    gap: 10px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba($color: #000000, $alpha: .88);
+    z-index: 1000;
+    padding: 0 250px;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
 
-    input{
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #7ea6da;
-      border-radius: 5px;
-      font-size: 16px;
+    @media screen and (max-width: 767px) {
+      padding: 20px;
+    }
+
+    .deleteBtn{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      position: absolute;
+      top: 200px;
+      right: 250px;
+
+      @media screen and (max-width: 767px) {
+        top: 30px;
+        right: 30px;
+      }
+
+      span{
+        position: absolute;
+        top: 50%;
+        left: 0;
+        display: block;
+        width: 30px;
+        height: 2px;
+        background-color: #fff;
+        transform-origin: center top;
+        transform: rotate(45deg) translateY(-50%);
+      }
+
+      span:last-child{
+        top: 47%;
+        transform: rotate(-45deg);
+      }
+    }
+
+    h2{
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 40px;
+    }
+
+    .typeTodo{
+      margin-bottom: 30px;
+
+      p{
+        font-size: 18px;
+        font-weight: bold;
+        color: #fff;
+        margin-bottom: 10px;
+      }
+
+      input{
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #7ea6da;
+        border-radius: 5px;
+        font-size: 16px;
+      }
+    }
+
+    .selectData{
+
+      margin-bottom: 30px;
+
+      p{
+        font-size: 18px;
+        font-weight: bold;
+        color: #fff;
+        margin-bottom: 20px;
+      }
+
+      label{
+        display: flex;
+        align-items: center;
+        margin-right: 20px;
+        font-size: 16px;
+        letter-spacing: 0.06em;
+        color: #fff;
+        margin-bottom: 20px;
+
+        input{
+          margin-right: 10px;
+          width: 20px;
+          height: 20px;
+
+          &:checked{
+            background-color: #7ea6da;
+          }
+        }
+
+        &:last-child{
+          margin-right: 0;
+        }
+
+      }
+
     }
 
     button{
       padding: 10px 20px;
-      border: 1px solid #7ea6da;
+      border: 1px solid #2465CA;
       border-radius: 5px;
-      background: #7ea6da;
+      background-color: #2465CA;
       color: #fff;
       font-size: 16px;
       cursor: pointer;
+      width: 100%;
 
       &[disabled]{
         opacity: 0.5;
@@ -121,70 +292,161 @@ onMounted(() => {
 
     }
 
+    &.active{
+      display: flex;
+    }
+
   }
 
-  .todoListArea{
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  .overflow{
+    overflow: scroll;
+    height: 750px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
 
-    li{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      gap: 10px;
-      background-color: #7ea6da;
-      border-radius: 5px;
-      padding: 10px;
+    @media screen and (max-width: 767px) {
+      height: 500px;
+    }
 
-      input{
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-      }
+    .todoListArea{
+      list-style: none;
+      padding: 0;
+      margin: 0;
 
-      span{
-        width: calc(100% - 40px);
-        font-size: 16px;
-        color: #ffffff;
-        font-weight: 600;
-
-        &.done{
-          text-decoration: line-through;
-        }
-
-      }
-
-      .deleteBtn{
+      li{
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
-        position: relative;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        cursor: pointer;
+        margin-bottom: 10px;
+        gap: 10px;
+        border-radius: 5px;
+        padding: 10px;
 
-        span{
-          position: absolute;
-          top: 50%;
-          left: 0;
-          display: block;
+        .todoListAreaInner{
+
+          p{
+            width: 55px;
+            height: 22px;
+            border-radius: 100px;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #808080;
+            line-height: 1;
+            letter-spacing: 0.08em;
+
+            @media screen and (max-width: 767px) {
+              width: 42.5px;
+              height: 18px;
+              font-size: 10px;
+              margin-bottom: 5px;
+              letter-spacing: 0.03em;
+            }
+
+          }
+
+          span{
+            width: calc(100% - 40px);
+            font-size: 16px;
+            color: #ffffff;
+            font-weight: 600;
+
+            @media screen and (max-width: 767px) {
+              font-size: 14.5px;
+            }
+
+            &.done{
+              text-decoration: line-through;
+            }
+
+          }
+
+        }
+
+        .deleteBtn{
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          position: relative;
           width: 20px;
-          height: 2px;
-          background-color: #fff;
-          transform-origin: center top;
-          transform: rotate(45deg) translateY(-50%);
+          height: 20px;
+          border-radius: 50%;
+          cursor: pointer;
+
+          span{
+            position: absolute;
+            top: 50%;
+            left: 0;
+            display: block;
+            width: 20px;
+            height: 2px;
+            background-color: #fff;
+            transform-origin: center top;
+            transform: rotate(45deg) translateY(-50%);
+          }
+
+          span:last-child{
+            top: 47%;
+            transform: rotate(-45deg);
+          }
         }
 
-        span:last-child{
-          top: 47%;
-          transform: rotate(-45deg);
+        &[data="tatsuru"]{
+          background-color: 	#3CB371;
         }
+
+        &[data="ayaka"]{
+          background-color: 	#F06060;
+        }
+
+        &[data="together"]{
+          background-color: 	#fd9f3a;
+        }
+
+        &:nth-last-child(1){
+          margin-bottom: 0;
+        }
+
       }
 
     }
+
   }
+
+  .todoListAddStartBtn{
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 600px;
+    width: 90%;
+    height: 50px;
+    border-radius: 5px;
+    background-color: #2465CA;
+
+
+    p{
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    &:hover{
+      opacity: 0.8;
+    }
+
+  }
+
 }
 </style>

@@ -12,9 +12,10 @@ import { onMounted, onBeforeMount, ref  } from "vue";
   <router-view ></router-view>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
 body{
-  background-color: #fff;
+  background-color: #E3E5E6;
   color: #000;
+  padding: 0 10px;
 }
 </style>
