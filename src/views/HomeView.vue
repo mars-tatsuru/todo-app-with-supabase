@@ -165,7 +165,7 @@ onMounted(() => {
     height: 100%;
     background-color: rgba($color: #000000, $alpha: .88);
     z-index: 1000;
-    padding: 0 250px;
+    padding: 0 calc(50% - 300px);
     display: none;
     flex-direction: column;
     justify-content: center;
@@ -185,7 +185,7 @@ onMounted(() => {
       cursor: pointer;
       position: absolute;
       top: 200px;
-      right: 250px;
+      right: calc(50% - 300px);
 
       @media screen and (max-width: 767px) {
         top: 30px;
