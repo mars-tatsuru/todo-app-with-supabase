@@ -307,7 +307,7 @@ onMounted(() => {
     margin-bottom: 30px;
 
     @media screen and (max-width: 767px) {
-      height: 75vh;
+      height: calc(100vh - 200px);
     }
 
     .todoListArea{
