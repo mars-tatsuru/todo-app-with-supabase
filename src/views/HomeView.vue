@@ -304,6 +304,7 @@ onMounted(() => {
     padding: 20px;
     background-color: #fff;
     border-radius: 10px;
+    margin-bottom: 30px;
 
     @media screen and (max-width: 767px) {
       height: 75vh;
@@ -419,18 +420,14 @@ onMounted(() => {
   }
 
   .todoListAddStartBtn{
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
     max-width: 600px;
-    width: 90%;
+    width: 100%;
+    margin: 0 auto;
     height: 50px;
     border-radius: 5px;
     background-color: #2465CA;
 
     @media screen and (max-width: 767px) {
-      width: 92.5%;
       bottom: 20px;
     }
 
