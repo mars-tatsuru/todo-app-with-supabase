@@ -21,7 +21,6 @@ const getList = async () => {
   const todo = await getTodos();
   const sortedList = todo?.sort((a, b) => a.id - b.id);
   todoList.value = sortedList as List[];
-  console.log(todoList.value);
 }
 
 const addList = async (title: string, who: string) => {
@@ -300,14 +299,14 @@ onMounted(() => {
 
   .overflow{
     overflow: scroll;
-    height: 750px;
+    height: calc(100vh - 230px);
     padding: 20px;
     background-color: #fff;
     border-radius: 10px;
     margin-bottom: 30px;
 
     @media screen and (max-width: 767px) {
-      height: calc(100vh - 300px);
+      height: calc(100vh - 280px);
     }
 
     .todoListArea{
