@@ -306,7 +306,7 @@ onMounted(() => {
     border-radius: 10px;
 
     @media screen and (max-width: 767px) {
-      height: 500px;
+      height: 75vh;
     }
 
     .todoListArea{
@@ -428,6 +428,11 @@ onMounted(() => {
     height: 50px;
     border-radius: 5px;
     background-color: #2465CA;
+
+    @media screen and (max-width: 767px) {
+      width: 92.5%;
+      bottom: 20px;
+    }
 
 
     p{
