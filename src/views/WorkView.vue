@@ -23,15 +23,15 @@ const selectWorkData = ["private", "work"]
 const getList = async () => {
   const todo = await getTodos();
   const sortedList = todo?.sort((a, b) => a.id - b.id);
-  const privateList = sortedList?.filter((item) => item.work === "private");
-  todoList.value = privateList as List[];
+  const workList = sortedList?.filter((item) => item.work === "work");
+  todoList.value = workList as List[];
 }
 
 const addList = async (title: string, who: string, work: string) => {
   await addTodo(title, who, work);
   todoItemText.value = "";
-  todoItemWho.value = "";
   todoItemWork.value = "";
+  todoItemWho.value = "";
   displayFlag.value = !displayFlag.value;
   getList();
 }
@@ -64,10 +64,10 @@ onMounted(() => {
     <div class="header">
       <h1>TODO LIST</h1>
       <RouterLink
-        to="/work"
+        to="/"
         class="changePage"
       >
-        仕事モードへ
+        プライベートモードへ
       </RouterLink>
     </div>
     <div
@@ -129,7 +129,7 @@ onMounted(() => {
       </div>
     </div>
     <button
-      :disabled="todoItemText === '' || todoItemWho === ''"
+      :disabled="todoItemText === '' || todoItemWho === '' || todoItemWork === ''"
       @click="addList(todoItemText,todoItemWho, todoItemWork)"
     >
       予定を追加する

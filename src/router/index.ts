@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
+import WorkView from "../views/WorkView.vue";
 // import { createAuth0, authGuard } from "@auth0/auth0-vue";
 
 const router = createRouter({
@@ -9,7 +10,11 @@ const router = createRouter({
       path: "/",
       name: "home",
       component: HomeView,
-      // beforeEnter: Auth0.routeGuard,
+    },
+    {
+      path: "/work",
+      name: "work",
+      component: WorkView,
     },
   ],
 });
