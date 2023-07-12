@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from "vue";
-import { getTodos, addTodo, deleteTodo, updateTodo }  from "../util/supabaseFunctions";
+import { getTodos, addTodo, deleteTodo }  from "../util/supabaseFunctions";
 import Pagination from "@/components/Pagination.vue";
+import draggable from 'vuedraggable'
 
 type List = {
   id: number;
@@ -9,6 +10,7 @@ type List = {
   isCompleted: boolean;
   who: string;
   work: boolean;
+  order: number;
 };
 
 const todoList = ref<List[]>([]);
@@ -22,8 +24,8 @@ const selectWorkData = ["private", "work"]
 
 const getList = async () => {
   const todo = await getTodos();
-  const sortedList = todo?.sort((a, b) => a.id - b.id);
-  const workList = sortedList?.filter((item) => item.work === "work");
+  // const sortedList = todo?.sort((a, b) => a.id - b.id);
+  const workList = todo?.filter((item) => item.work === "work");
   todoList.value = workList as List[];
 }
 
@@ -136,31 +138,40 @@ onMounted(() => {
     </button>
     </div>
     <div class="overflow">
-      <ul class="todoListArea">
+      <draggable
+        class="todoListArea"
+        :list="todoList"
+        item-key="id"
+        :animation="200"
+        :tag="'ul'"
+        ghost-class="ghost-card"
+      >
+        <template
+          #item="{ element }"
+        >
         <li
-          v-for="todo in todoList"
-          :key="todo.id"
-          :data="todo.who"
+          :data="element.who"
         >
           <div class="todoListAreaInner">
-            <p v-if="todo.who === 'tatsuru'">たつる</p>
-            <p v-else-if="todo.who === 'ayaka'">あやか</p>
-            <p v-if="todo.who === 'together'">ふたり</p>
+            <p v-if="element.who === 'tatsuru'">たつる</p>
+            <p v-else-if="element.who === 'ayaka'">あやか</p>
+            <p v-if="element.who === 'together'">ふたり</p>
             <span
-              :class="{'done': todo.isCompleted}"
+              :class="{'done': element.isCompleted}"
             >
-              {{todo.title}}
+              {{element.title}}
             </span>
           </div>
           <div
             class="deleteBtn"
-            @click="deleteItem(todo.id)"
+            @click="deleteItem(element.id)"
           >
             <span></span>
             <span></span>
           </div>
         </li>
-      </ul>
+        </template>
+      </draggable>
     </div>
     <div
       class="todoListAddStartBtn"
@@ -394,6 +405,7 @@ onMounted(() => {
         gap: 10px;
         border-radius: 5px;
         padding: 10px;
+        cursor: pointer;
 
         .todoListAreaInner{
 

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from "vue";
-import { getTodos, addTodo, deleteTodo, updateTodo }  from "../util/supabaseFunctions";
+import { getTodos, addTodo, deleteTodo, deleteListBeforeOrderTodo, insertAndOrderTodo }  from "../util/supabaseFunctions";
 import Pagination from "@/components/Pagination.vue";
+import draggable from 'vuedraggable'
 
 type List = {
   id: number;
@@ -9,8 +10,10 @@ type List = {
   isCompleted: boolean;
   who: string;
   work: boolean;
+  order:number;
 };
 
+const todo = ref<any>([]);
 const todoList = ref<List[]>([]);
 const todoItemText = ref<string>("");
 const todoItemWho = ref<string>("");
@@ -21,10 +24,10 @@ const selectWorkData = ["private", "work"]
 
 
 const getList = async () => {
-  const todo = await getTodos();
-  const sortedList = todo?.sort((a, b) => a.id - b.id);
-  const privateList = sortedList?.filter((item) => item.work === "private");
+  todo.value = await getTodos();
+  const privateList = todo.value?.filter((item: any) => item.work === "private");
   todoList.value = privateList as List[];
+  console.log(todoList.value)
 }
 
 const addList = async (title: string, who: string, work: string) => {
@@ -36,11 +39,6 @@ const addList = async (title: string, who: string, work: string) => {
   getList();
 }
 
-// const updateItem = async (id: number, isCompleted:boolean) => {
-//   await updateTodo(id,isCompleted);
-//   getList();
-// }
-
 const deleteItem = async (id: number) => {
   await deleteTodo(id);
   getList();
@@ -51,6 +49,79 @@ const modalDisplay = () => {
   todoItemText.value = "";
   todoItemWho.value = "";
   todoItemWork.value = "";
+}
+
+// ドラッグして並べ替えする関数
+const dragEnd = async (e: any) => {
+
+  // findで配列の中から条件に一致する要素を取得
+  // 一番上にドラッグした時の対処
+  if (e.newIndex === 0) {
+    todoList.value[e.newIndex].order = 1
+    for (let i = 1; i < e.oldIndex + 1; i++) {
+      todoList.value[i].order = i + 1
+      console.log(todoList.value[i].title,todoList.value[i].order);
+    }
+    console.log(todoList.value);
+  } else if(e.newIndex === todoList.value.length - 1) {
+    // 一番下にドラッグした時の対処
+    todoList.value[e.newIndex].order = todoList.value[e.newIndex - 1].order + 1
+    for(let i = e.oldIndex; i < e.newIndex; i++){
+      todoList.value[i].order = todoList.value[i].order - 1
+      console.log(todoList.value[i].title,todoList.value[i].order);
+    }
+    console.log(todoList.value);
+  } else if(e.oldIndex === todoList.value.length - 1){
+    // 一番下から一つ上にドラッグした時の対処
+    todoList.value[e.newIndex].order = todoList.value[e.newIndex - 1].order + 1
+    for(let i = e.oldIndex; i > e.newIndex; i--){
+      todoList.value[i].order = todoList.value[i].order + 1
+      console.log(todoList.value[i].title,todoList.value[i].order);
+    }
+    console.log(todoList.value);
+  } else if(e.oldIndex === 0){
+    // 一番上から一つ下にドラッグした時の対処
+    todoList.value[e.newIndex].order = todoList.value[e.newIndex + 1].order - 1
+    for(let i = e.oldIndex; i < e.newIndex; i++){
+      todoList.value[i].order = todoList.value[i].order + 1
+      console.log(todoList.value[i].title,todoList.value[i].order);
+    }
+    console.log(todoList.value);
+  } else {
+    // それ以外の時の対処(既存のidを被らないようにする)
+    if (e.newIndex > e.oldIndex) {
+      for(let i = e.oldIndex; i < e.newIndex; i++){
+        // 連番の間に入った時の対処
+        if (todoList.value[i].order === todoList.value[i + 1].order) {
+          todoList.value[i].order = todoList.value[i].order + 1
+        } else {
+          todoList.value[i].order = todoList.value[i].order - 1
+        }
+        todoList.value[e.newIndex].order = todoList.value[e.newIndex - 1].order + 1
+        console.log(todoList.value[i].title,todoList.value[i].order);
+      }
+      console.log(todoList.value);
+    } else {
+      for(let i = e.newIndex + 1; i < e.oldIndex + 1; i++){
+        // 連番の間に入った時の対処
+        if (todoList.value[i].order === todoList.value[i + 1].order) {
+          todoList.value[i].order = todoList.value[i].order - 1
+        } else {
+          todoList.value[i].order = todoList.value[i].order + 1
+        }
+        todoList.value[e.newIndex].order = todoList.value[e.newIndex + 1].order - 1
+        console.log(todoList.value[i].title,todoList.value[i].order);
+      }
+      console.log(todoList.value);
+    }
+  }
+
+
+  await deleteListBeforeOrderTodo(todo.value)
+  console.log("delete");
+  await insertAndOrderTodo(todoList.value)
+  console.log("insert");
+
 }
 
 onMounted(() => {
@@ -136,31 +207,41 @@ onMounted(() => {
     </button>
     </div>
     <div class="overflow">
-      <ul class="todoListArea">
+      <draggable
+        class="todoListArea"
+        :list="todoList"
+        item-key="id"
+        :animation="200"
+        :tag="'ul'"
+        ghost-class="ghost-card"
+        @end="dragEnd($event)"
+      >
+        <template
+          #item="{ element }"
+        >
         <li
-          v-for="todo in todoList"
-          :key="todo.id"
-          :data="todo.who"
+          :data="element.who"
         >
           <div class="todoListAreaInner">
-            <p v-if="todo.who === 'tatsuru'">たつる</p>
-            <p v-else-if="todo.who === 'ayaka'">あやか</p>
-            <p v-if="todo.who === 'together'">ふたり</p>
+            <p v-if="element.who === 'tatsuru'">たつる</p>
+            <p v-else-if="element.who === 'ayaka'">あやか</p>
+            <p v-if="element.who === 'together'">ふたり</p>
             <span
-              :class="{'done': todo.isCompleted}"
+              :class="{'done': element.isCompleted}"
             >
-              {{todo.title}}
+              {{element.title}}
             </span>
           </div>
           <div
             class="deleteBtn"
-            @click="deleteItem(todo.id)"
+            @click="deleteItem(element.id)"
           >
             <span></span>
             <span></span>
           </div>
         </li>
-      </ul>
+        </template>
+      </draggable>
     </div>
     <div
       class="todoListAddStartBtn"
@@ -394,6 +475,7 @@ onMounted(() => {
         gap: 10px;
         border-radius: 5px;
         padding: 10px;
+        cursor: pointer;
 
         .todoListAreaInner{
 

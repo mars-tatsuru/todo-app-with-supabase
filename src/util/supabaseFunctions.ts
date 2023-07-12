@@ -1,7 +1,16 @@
 import { supabase } from '../util/supabase'
 
+type List = {
+  id: number;
+  title: string;
+  isCompleted: boolean;
+  who: string;
+  work: boolean;
+  order:number;
+};
+
 export const getTodos = async () => {
-  const todos = await supabase.from('todo').select('*');
+  const todos = await supabase.from('todo').select('*').order('order', { ascending: true });
   return todos.data;
 }
 
@@ -21,7 +30,16 @@ export const deleteTodo = async (id: number) => {
   return data;
 }
 
-export const updateTodo = async (id: number, isCompleted: boolean) => {
-  const { data, error } = await supabase.from('todo').update({ isCompleted: !isCompleted }).match({ id: id });
+export const deleteListBeforeOrderTodo = async (todoList: any) => {
+
+  const deletePromises = todoList.map(async (row: any) => {
+    await supabase.from('todo').delete().eq('id', row.id);
+  });
+
+  await Promise.all(deletePromises);
+}
+
+export const insertAndOrderTodo = async (newTodoList: List[]) => {
+  const { data, error } =  await supabase.from('todo').insert(newTodoList);
   return data;
 }
