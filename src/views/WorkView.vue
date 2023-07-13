@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from "vue";
-import { getTodos, addTodo, deleteTodo }  from "../util/supabaseFunctions";
+import { getTodosForWork, addTodo, deleteTodo, deleteListBeforeOrderTodo, insertAndOrderTodo }  from "../util/supabaseFunctions";
 import Pagination from "@/components/Pagination.vue";
 import draggable from 'vuedraggable'
 
 type List = {
   id: number;
   title: string;
-  isCompleted: boolean;
   who: string;
   work: boolean;
-  order: number;
+  order:number;
 };
 
+const todo = ref<any>([]);
 const todoList = ref<List[]>([]);
 const todoItemText = ref<string>("");
 const todoItemWho = ref<string>("");
@@ -23,25 +23,17 @@ const selectWorkData = ["private", "work"]
 
 
 const getList = async () => {
-  const todo = await getTodos();
-  // const sortedList = todo?.sort((a, b) => a.id - b.id);
-  const workList = todo?.filter((item) => item.work === "work");
-  todoList.value = workList as List[];
+  todo.value = await getTodosForWork();
 }
 
 const addList = async (title: string, who: string, work: string) => {
   await addTodo(title, who, work);
   todoItemText.value = "";
-  todoItemWork.value = "";
   todoItemWho.value = "";
+  todoItemWork.value = "";
   displayFlag.value = !displayFlag.value;
   getList();
 }
-
-// const updateItem = async (id: number, isCompleted:boolean) => {
-//   await updateTodo(id,isCompleted);
-//   getList();
-// }
 
 const deleteItem = async (id: number) => {
   await deleteTodo(id);
@@ -53,6 +45,79 @@ const modalDisplay = () => {
   todoItemText.value = "";
   todoItemWho.value = "";
   todoItemWork.value = "";
+}
+
+// ドラッグして並べ替えする関数
+const dragEnd = async (e: any) => {
+
+  // findで配列の中から条件に一致する要素を取得
+  // 一番上にドラッグした時の対処
+  if (e.newIndex === 0) {
+    todo.value[e.newIndex].order = 1
+    for (let i = 1; i < e.oldIndex + 1; i++) {
+      todo.value[i].order = i + 1
+      console.log(todo.value[i].title,todo.value[i].order);
+    }
+    console.log(todo.value);
+  } else if(e.newIndex === todo.value.length - 1) {
+    // 一番下にドラッグした時の対処
+    todo.value[e.newIndex].order = todo.value[e.newIndex - 1].order + 1
+    for(let i = e.oldIndex; i < e.newIndex; i++){
+      todo.value[i].order = todo.value[i].order - 1
+      console.log(todo.value[i].title,todo.value[i].order);
+    }
+    console.log(todo.value);
+  } else if(e.oldIndex === todo.value.length - 1){
+    // 一番下から一つ上にドラッグした時の対処
+    todo.value[e.newIndex].order = todo.value[e.newIndex - 1].order + 1
+    for(let i = e.oldIndex; i > e.newIndex; i--){
+      todo.value[i].order = todo.value[i].order + 1
+      console.log(todo.value[i].title,todo.value[i].order);
+    }
+    console.log(todo.value);
+  } else if(e.oldIndex === 0){
+    // 一番上から一つ下にドラッグした時の対処
+    todo.value[e.newIndex].order = todo.value[e.newIndex + 1].order - 1
+    for(let i = e.oldIndex; i < e.newIndex; i++){
+      todo.value[i].order = todo.value[i].order + 1
+      console.log(todo.value[i].title,todo.value[i].order);
+    }
+    console.log(todo.value);
+  } else {
+    // それ以外の時の対処(既存のidを被らないようにする)
+    if (e.newIndex > e.oldIndex) {
+      for(let i = e.oldIndex; i < e.newIndex; i++){
+        // 連番の間に入った時の対処
+        if (todo.value[i].order === todo.value[i + 1].order) {
+          todo.value[i].order = todo.value[i].order + 1
+        } else {
+          todo.value[i].order = todo.value[i].order - 1
+        }
+        todo.value[e.newIndex].order = todo.value[e.newIndex - 1].order + 1
+        console.log(todo.value[i].title,todo.value[i].order);
+      }
+      console.log(todo.value);
+    } else {
+      for(let i = e.newIndex + 1; i < e.oldIndex + 1; i++){
+        // 連番の間に入った時の対処
+        if (todo.value[i].order === todo.value[i + 1].order) {
+          todo.value[i].order = todo.value[i].order - 1
+        } else {
+          todo.value[i].order = todo.value[i].order + 1
+        }
+        todo.value[e.newIndex].order = todo.value[e.newIndex + 1].order - 1
+        console.log(todo.value[i].title,todo.value[i].order);
+      }
+      console.log(todo.value);
+    }
+  }
+
+
+  await deleteListBeforeOrderTodo(todo.value)
+  console.log("delete");
+  await insertAndOrderTodo(todo.value)
+  console.log("insert");
+
 }
 
 onMounted(() => {
@@ -131,7 +196,7 @@ onMounted(() => {
       </div>
     </div>
     <button
-      :disabled="todoItemText === '' || todoItemWho === '' || todoItemWork === ''"
+      :disabled="todoItemText === '' || todoItemWho === ''"
       @click="addList(todoItemText,todoItemWho, todoItemWork)"
     >
       予定を追加する
@@ -140,11 +205,13 @@ onMounted(() => {
     <div class="overflow">
       <draggable
         class="todoListArea"
-        :list="todoList"
+        :list="todo"
         item-key="id"
         :animation="200"
         :tag="'ul'"
+        handle=".itemHandle"
         ghost-class="ghost-card"
+        @end="dragEnd($event)"
       >
         <template
           #item="{ element }"
@@ -152,6 +219,11 @@ onMounted(() => {
         <li
           :data="element.who"
         >
+          <div class="itemHandle">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
           <div class="todoListAreaInner">
             <p v-if="element.who === 'tatsuru'">たつる</p>
             <p v-else-if="element.who === 'ayaka'">あやか</p>
@@ -404,8 +476,40 @@ onMounted(() => {
         margin-bottom: 10px;
         gap: 10px;
         border-radius: 5px;
-        padding: 10px;
-        cursor: pointer;
+        padding: 10px 10px 10px 40px;
+        position: relative;
+
+        .itemHandle{
+          position: absolute;
+          top: 50%;
+          left: 10px;
+          transform: translateY(-50%);
+          width: 20px;
+          height: 10px;
+          cursor: move;
+
+          span{
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #fff;
+            border-radius: 5px;
+
+            &:nth-child(2){
+              top: 50%;
+              transform: translateY(-50%);
+            }
+
+            &:last-child{
+              top:auto;
+              bottom: 0;
+            }
+          }
+
+        }
 
         .todoListAreaInner{
 

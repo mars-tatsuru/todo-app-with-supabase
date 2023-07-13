@@ -3,14 +3,19 @@ import { supabase } from '../util/supabase'
 type List = {
   id: number;
   title: string;
-  isCompleted: boolean;
   who: string;
   work: boolean;
   order:number;
 };
 
-export const getTodos = async () => {
-  const todos = await supabase.from('todo').select('*').order('order', { ascending: true });
+export const getTodosForPrivate = async () => {
+  const todos = await supabase.from('todo').select('*').order('order', { ascending: true }).like('work', 'private');
+  console.log(todos.data);
+  return todos.data;
+}
+
+export const getTodosForWork = async () => {
+  const todos = await supabase.from('todo').select('*').order('order', { ascending: true }).like('work', 'work');
   return todos.data;
 }
 
@@ -30,9 +35,9 @@ export const deleteTodo = async (id: number) => {
   return data;
 }
 
-export const deleteListBeforeOrderTodo = async (todoList: any) => {
+export const deleteListBeforeOrderTodo = async (todoList: List[]) => {
 
-  const deletePromises = todoList.map(async (row: any) => {
+  const deletePromises = todoList.map(async (row: List) => {
     await supabase.from('todo').delete().eq('id', row.id);
   });
 
