@@ -196,7 +196,7 @@ onMounted(() => {
       </div>
     </div>
     <button
-      :disabled="todoItemText === '' || todoItemWho === ''"
+      :disabled="todoItemText === '' || todoItemWho === '' || todoItemWork === ''"
       @click="addList(todoItemText,todoItemWho, todoItemWork)"
     >
       予定を追加する
