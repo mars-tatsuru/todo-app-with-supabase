@@ -213,6 +213,7 @@ onMounted(() => {
         item-key="id"
         :animation="200"
         :tag="'ul'"
+        handle=".itemHandle"
         ghost-class="ghost-card"
         @end="dragEnd($event)"
       >
@@ -222,6 +223,11 @@ onMounted(() => {
         <li
           :data="element.who"
         >
+          <div class="itemHandle">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
           <div class="todoListAreaInner">
             <p v-if="element.who === 'tatsuru'">たつる</p>
             <p v-else-if="element.who === 'ayaka'">あやか</p>
@@ -474,8 +480,40 @@ onMounted(() => {
         margin-bottom: 10px;
         gap: 10px;
         border-radius: 5px;
-        padding: 10px;
+        padding: 10px 10px 10px 40px;
         cursor: pointer;
+        position: relative;
+
+        .itemHandle{
+          position: absolute;
+          top: 50%;
+          left: 10px;
+          transform: translateY(-50%);
+          width: 20px;
+          height: 10px;
+
+          span{
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #fff;
+            border-radius: 5px;
+
+            &:nth-child(2){
+              top: 50%;
+              transform: translateY(-50%);
+            }
+
+            &:last-child{
+              top:auto;
+              bottom: 0;
+            }
+          }
+
+        }
 
         .todoListAreaInner{
 
