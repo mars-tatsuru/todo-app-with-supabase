@@ -129,7 +129,7 @@ onMounted(() => {
 <template>
   <div class="todoListWrapper">
     <div class="header">
-      <h1>TODO LIST</h1>
+      <h1>TODO LIST <span>for work</span></h1>
       <RouterLink
         to="/"
         class="changePage"
@@ -274,7 +274,16 @@ onMounted(() => {
       font-weight: bold;
 
       @media screen and (max-width: 767px) {
-        font-size: 30px;
+        font-size: 25px;
+      }
+
+      span{
+        font-size: 20px;
+
+        @media screen and (max-width: 767px) {
+          font-size: 12px;
+        }
+
       }
 
     }
