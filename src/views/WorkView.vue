@@ -108,8 +108,15 @@ const dragEnd = async (e: any) => {
   await insertAndOrderTodo(todo.value)
 }
 
+const disableTextSelection = () => {
+  document.addEventListener('selectstart', function (e) {
+    e.preventDefault()
+  })
+}
+
 onMounted(() => {
   getList()
+  disableTextSelection()
 })
 </script>
 

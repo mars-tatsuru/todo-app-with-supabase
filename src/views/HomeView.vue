@@ -122,8 +122,15 @@ const dragEnd = async (e: any) => {
   console.log('insert')
 }
 
+const disableTextSelection = () => {
+  document.addEventListener('selectstart', function (e) {
+    e.preventDefault()
+  })
+}
+
 onMounted(() => {
   getList()
+  disableTextSelection()
 })
 </script>
 
@@ -419,7 +426,7 @@ onMounted(() => {
         border-radius: 5px;
         padding: 10px 10px 10px 40px;
         position: relative;
-        user-select: none;
+        // user-select: none;
 
         .itemHandle {
           position: absolute;
