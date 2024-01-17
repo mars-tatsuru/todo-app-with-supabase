@@ -204,9 +204,11 @@ onMounted(() => {
 .todoListWrapper {
   max-width: 600px;
   width: 100%;
+  height: 100%;
   margin: 0 auto;
-  padding: 20px 0;
-
+  display: grid;
+  grid-template-rows: 100px 1fr 50px;
+  // padding: 0 20px;
   .header {
     display: flex;
     align-items: center;
@@ -387,14 +389,15 @@ onMounted(() => {
 
   .overflow {
     overflow: scroll;
-    height: calc(100vh - 230px);
+    // height: calc(100vh - 230px);
+    height: 95%;
     padding: 20px;
     background-color: #fff;
     border-radius: 10px;
     margin-bottom: 30px;
 
     @media screen and (max-width: 767px) {
-      height: calc(100vh - 300px);
+      // height: calc(100vh - 300px);
     }
 
     .todoListArea {
