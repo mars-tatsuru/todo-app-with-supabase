@@ -7,7 +7,6 @@ import {
   deleteListBeforeOrderTodo,
   insertAndOrderTodo
 } from '../util/supabaseFunctions'
-import Pagination from '@/components/Pagination.vue'
 import draggable from 'vuedraggable'
 
 type List = {

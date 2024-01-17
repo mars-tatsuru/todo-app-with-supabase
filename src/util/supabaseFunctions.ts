@@ -1,22 +1,29 @@
 import { supabase } from '../util/supabase'
 
 type List = {
-  id: number;
-  title: string;
-  who: string;
-  work: boolean;
-  order:number;
-};
+  id: number
+  title: string
+  who: string
+  work: boolean
+  order: number
+}
 
 export const getTodosForPrivate = async () => {
-  const todos = await supabase.from('todo').select('*').order('order', { ascending: true }).like('work', 'private');
-  console.log(todos.data);
-  return todos.data;
+  const todos = await supabase
+    .from('todo')
+    .select('*')
+    .order('order', { ascending: true })
+    .like('work', 'private')
+  return todos.data
 }
 
 export const getTodosForWork = async () => {
-  const todos = await supabase.from('todo').select('*').order('order', { ascending: true }).like('work', 'work');
-  return todos.data;
+  const todos = await supabase
+    .from('todo')
+    .select('*')
+    .order('order', { ascending: true })
+    .like('work', 'work')
+  return todos.data
 }
 
 export const addTodo = async (todo: string, who: string, work: string) => {
@@ -24,27 +31,26 @@ export const addTodo = async (todo: string, who: string, work: string) => {
     {
       title: todo,
       who: who,
-      work: work,
+      work: work
     }
-  ]);
-  return data;
+  ])
+  return data
 }
 
 export const deleteTodo = async (id: number) => {
-  const { data, error } = await supabase.from('todo').delete().match({ id: id });
-  return data;
+  const { data, error } = await supabase.from('todo').delete().match({ id: id })
+  return data
 }
 
 export const deleteListBeforeOrderTodo = async (todoList: List[]) => {
-
   const deletePromises = todoList.map(async (row: List) => {
-    await supabase.from('todo').delete().eq('id', row.id);
-  });
+    await supabase.from('todo').delete().eq('id', row.id)
+  })
 
-  await Promise.all(deletePromises);
+  await Promise.all(deletePromises)
 }
 
 export const insertAndOrderTodo = async (newTodoList: List[]) => {
-  const { data, error } =  await supabase.from('todo').insert(newTodoList);
-  return data;
+  const { data, error } = await supabase.from('todo').insert(newTodoList)
+  return data
 }

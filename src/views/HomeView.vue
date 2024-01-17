@@ -7,7 +7,6 @@ import {
   deleteListBeforeOrderTodo,
   insertAndOrderTodo
 } from '../util/supabaseFunctions'
-import Pagination from '@/components/Pagination.vue'
 import draggable from 'vuedraggable'
 
 type List = {
@@ -60,33 +59,25 @@ const dragEnd = async (e: any) => {
     todo.value[e.newIndex].order = 1
     for (let i = 1; i < e.oldIndex + 1; i++) {
       todo.value[i].order = i + 1
-      console.log(todo.value[i].title, todo.value[i].order)
     }
-    console.log(todo.value)
   } else if (e.newIndex === todo.value.length - 1) {
     // 一番下にドラッグした時の対処
     todo.value[e.newIndex].order = todo.value[e.newIndex - 1].order + 1
     for (let i = e.oldIndex; i < e.newIndex; i++) {
       todo.value[i].order = todo.value[i].order - 1
-      console.log(todo.value[i].title, todo.value[i].order)
     }
-    console.log(todo.value)
   } else if (e.oldIndex === todo.value.length - 1) {
     // 一番下から一つ上にドラッグした時の対処
     todo.value[e.newIndex].order = todo.value[e.newIndex - 1].order + 1
     for (let i = e.oldIndex; i > e.newIndex; i--) {
       todo.value[i].order = todo.value[i].order + 1
-      console.log(todo.value[i].title, todo.value[i].order)
     }
-    console.log(todo.value)
   } else if (e.oldIndex === 0) {
     // 一番上から一つ下にドラッグした時の対処
     todo.value[e.newIndex].order = todo.value[e.newIndex + 1].order - 1
     for (let i = e.oldIndex; i < e.newIndex; i++) {
       todo.value[i].order = todo.value[i].order + 1
-      console.log(todo.value[i].title, todo.value[i].order)
     }
-    console.log(todo.value)
   } else {
     // それ以外の時の対処(既存のidを被らないようにする)
     if (e.newIndex > e.oldIndex) {
@@ -98,9 +89,7 @@ const dragEnd = async (e: any) => {
           todo.value[i].order = todo.value[i].order - 1
         }
         todo.value[e.newIndex].order = todo.value[e.newIndex - 1].order + 1
-        console.log(todo.value[i].title, todo.value[i].order)
       }
-      console.log(todo.value)
     } else {
       for (let i = e.newIndex + 1; i < e.oldIndex + 1; i++) {
         // 連番の間に入った時の対処
@@ -110,16 +99,12 @@ const dragEnd = async (e: any) => {
           todo.value[i].order = todo.value[i].order + 1
         }
         todo.value[e.newIndex].order = todo.value[e.newIndex + 1].order - 1
-        console.log(todo.value[i].title, todo.value[i].order)
       }
-      console.log(todo.value)
     }
   }
 
   await deleteListBeforeOrderTodo(todo.value)
-  console.log('delete')
   await insertAndOrderTodo(todo.value)
-  console.log('insert')
 }
 
 const disableTextSelection = () => {

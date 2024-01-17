@@ -8,7 +8,7 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   server: {
     proxy: {
-      '/hoge?param=user': 'http://localhost:5001',
+      '/hoge?param=user': 'http://localhost:5001'
     }
   },
   plugins: [
