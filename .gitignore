@@ -38,3 +38,6 @@ dist
 dist-ssr
 coverage
 *.local
+
+# Local Netlify folder
+.netlify
