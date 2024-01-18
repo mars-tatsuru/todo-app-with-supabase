@@ -207,7 +207,7 @@ onMounted(() => {
   height: 100%;
   margin: 0 auto;
   display: grid;
-  grid-template-rows: 70px 1fr 50px;
+  grid-template-rows: 70px 1fr 70px;
   // padding: 0 20px;
   .header {
     display: flex;
