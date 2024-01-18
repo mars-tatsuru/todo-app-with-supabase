@@ -11,6 +11,7 @@ export default defineConfig({
     // proxy: {
     //   '/hoge?param=user': 'http://localhost:5001'
     // }
+    port: 5175
   },
   plugins: [
     vue(),
