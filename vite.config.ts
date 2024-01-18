@@ -30,9 +30,9 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       injectRegister: 'auto',
       manifest: {
-        name: 'TODO App',
-        short_name: 'TODO',
-        description: 'resister your todo',
+        name: 'ふたりのやること',
+        short_name: 'ふたりのやること',
+        description: 'ふたりのやることを管理するアプリです',
         theme_color: '#ffffff',
         icons: [
           {
