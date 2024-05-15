@@ -12,7 +12,7 @@ export const getTodosForPrivate = async () => {
   const todos = await supabase
     .from('todo')
     .select('*')
-    .order('order', { ascending: true })
+    .order('order', { ascending: false })
     .like('work', 'private')
   return todos.data
 }
@@ -21,7 +21,7 @@ export const getTodosForWork = async () => {
   const todos = await supabase
     .from('todo')
     .select('*')
-    .order('order', { ascending: true })
+    .order('order', { ascending: false })
     .like('work', 'work')
   return todos.data
 }
