@@ -53,58 +53,53 @@ const modalDisplay = () => {
 
 // ドラッグして並べ替えする関数
 const dragEnd = async (e: any) => {
-  // findで配列の中から条件に一致する要素を取得
-  // 一番上にドラッグした時の対処
-  if (e.newIndex === 0) {
-    todo.value[e.newIndex].order = 1
-    for (let i = 1; i < e.oldIndex + 1; i++) {
-      todo.value[i].order = i + 1
+  const { newIndex, oldIndex } = e
+  const todos = todo.value
+
+  if (newIndex === 0) {
+    // 一番上にドラッグした時の対処
+    todos[newIndex].order = todos[oldIndex].order + 1
+    for (let i = 1; i <= oldIndex; i++) {
+      todos[i].order -= 1
     }
-  } else if (e.newIndex === todo.value.length - 1) {
+  } else if (newIndex === todos.length - 1) {
     // 一番下にドラッグした時の対処
-    todo.value[e.newIndex].order = todo.value[e.newIndex - 1].order + 1
-    for (let i = e.oldIndex; i < e.newIndex; i++) {
-      todo.value[i].order = todo.value[i].order - 1
+    todos[newIndex].order = todos[newIndex - 1].order - 1
+    for (let i = oldIndex; i < newIndex; i++) {
+      todos[i].order += 1
     }
-  } else if (e.oldIndex === todo.value.length - 1) {
+  } else if (oldIndex === todos.length - 1) {
     // 一番下から一つ上にドラッグした時の対処
-    todo.value[e.newIndex].order = todo.value[e.newIndex - 1].order + 1
-    for (let i = e.oldIndex; i > e.newIndex; i--) {
-      todo.value[i].order = todo.value[i].order + 1
+    todos[newIndex].order = todos[newIndex + 1].order + 1
+    for (let i = oldIndex; i > newIndex; i--) {
+      todos[i].order += 1
     }
-  } else if (e.oldIndex === 0) {
+  } else if (oldIndex === 0) {
     // 一番上から一つ下にドラッグした時の対処
-    todo.value[e.newIndex].order = todo.value[e.newIndex + 1].order - 1
-    for (let i = e.oldIndex; i < e.newIndex; i++) {
-      todo.value[i].order = todo.value[i].order + 1
+    todos[newIndex].order = todos[newIndex + 1].order - 1
+    for (let i = oldIndex; i < newIndex; i++) {
+      todos[i].order -= 1
     }
   } else {
-    // それ以外の時の対処(既存のidを被らないようにする)
-    if (e.newIndex > e.oldIndex) {
-      for (let i = e.oldIndex; i < e.newIndex; i++) {
-        // 連番の間に入った時の対処
-        if (todo.value[i].order === todo.value[i + 1].order) {
-          todo.value[i].order = todo.value[i].order + 1
-        } else {
-          todo.value[i].order = todo.value[i].order - 1
-        }
-        todo.value[e.newIndex].order = todo.value[e.newIndex - 1].order + 1
+    // それ以外の時の対処
+    if (newIndex > oldIndex) {
+      for (let i = oldIndex; i < newIndex; i++) {
+        todos[i].order += 1
       }
+      todos[newIndex].order = todos[newIndex - 1].order - 1
     } else {
-      for (let i = e.newIndex + 1; i < e.oldIndex + 1; i++) {
-        // 連番の間に入った時の対処
-        if (todo.value[i].order === todo.value[i + 1].order) {
-          todo.value[i].order = todo.value[i].order - 1
-        } else {
-          todo.value[i].order = todo.value[i].order + 1
-        }
-        todo.value[e.newIndex].order = todo.value[e.newIndex + 1].order - 1
+      for (let i = newIndex + 1; i <= oldIndex; i++) {
+        todos[i].order -= 1
       }
+      todos[newIndex].order = todos[newIndex + 1].order + 1
     }
   }
 
-  await deleteListBeforeOrderTodo(todo.value)
-  await insertAndOrderTodo(todo.value)
+  // 並べ替え
+  todos.sort((a: { order: number }, b: { order: number }) => b.order - a.order)
+
+  await deleteListBeforeOrderTodo(todos)
+  await insertAndOrderTodo(todos)
 }
 
 const disableTextSelection = () => {
